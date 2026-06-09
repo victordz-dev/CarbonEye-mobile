@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com/query)
 
-[Backend API](https://github.com/victordz-dev/CarbonEye-api) · [Swagger (Produção)](https://carboneye-api.onrender.com/api/docs) · [Documentação de Arquitetura](./docs/Arquitetura%20Frontend.md)
+[Backend API](https://github.com/victordz-dev/CarbonEye-api) · [Swagger (Produção)](https://carboneye-api.onrender.com/api/docs) · [Documentação de Arquitetura](./docs/Arquitetura%20Frontend.md) · [Download APK (v1.0.1)](https://github.com/victordz-dev/CarbonEye-mobile/releases/tag/v1.0.1)
 
 </div>
 
@@ -285,10 +285,21 @@ npm test
 
 ## 📸 Evidências de Execução
 
-> Os links abaixo demonstram o sistema funcionando em produção:
+> Os links e imagens abaixo demonstram o sistema em funcionamento:
+
+<p align="center">
+  <img src="./docs/prints/Screenshot_2026-06-09-15-56-13-323_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/prints/Screenshot_2026-06-09-15-56-15-652_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/prints/Screenshot_2026-06-09-15-56-53-783_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/prints/Screenshot_2026-06-09-15-56-57-835_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/prints/Screenshot_2026-06-09-15-57-00-086_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/prints/Screenshot_2026-06-09-15-57-05-477_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/prints/Screenshot_2026-06-09-15-57-07-877_com.victordz.dev.frontend.jpg" width="200" />
+</p>
 
 - 🔗 [API ativa em produção (Swagger UI)](https://carboneye-api.onrender.com/api/docs)
 - 📱 [Backend (GitHub)](https://github.com/victordz-dev/CarbonEye-api)
+- 📥 [Download APK (v1.0.1)](https://github.com/victordz-dev/CarbonEye-mobile/releases/tag/v1.0.1)
 
 ---
 
