@@ -287,13 +287,13 @@ npm test
 > Os links e imagens abaixo demonstram o sistema em funcionamento:
 
 <p align="center">
-  <img src="./docs/prints/Screenshot_2026-06-09-15-56-13-323_com.victordz.dev.frontend.jpg" width="200" />
-  <img src="./docs/prints/Screenshot_2026-06-09-15-56-15-652_com.victordz.dev.frontend.jpg" width="200" />
-  <img src="./docs/prints/Screenshot_2026-06-09-15-56-53-783_com.victordz.dev.frontend.jpg" width="200" />
-  <img src="./docs/prints/Screenshot_2026-06-09-15-56-57-835_com.victordz.dev.frontend.jpg" width="200" />
-  <img src="./docs/prints/Screenshot_2026-06-09-15-57-00-086_com.victordz.dev.frontend.jpg" width="200" />
-  <img src="./docs/prints/Screenshot_2026-06-09-15-57-05-477_com.victordz.dev.frontend.jpg" width="200" />
-  <img src="./docs/prints/Screenshot_2026-06-09-15-57-07-877_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/Prints/Screenshot_2026-06-09-15-56-13-323_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/Prints/Screenshot_2026-06-09-15-56-15-652_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/Prints/Screenshot_2026-06-09-15-56-53-783_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/Prints/Screenshot_2026-06-09-15-56-57-835_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/Prints/Screenshot_2026-06-09-15-57-00-086_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/Prints/Screenshot_2026-06-09-15-57-05-477_com.victordz.dev.frontend.jpg" width="200" />
+  <img src="./docs/Prints/Screenshot_2026-06-09-15-57-07-877_com.victordz.dev.frontend.jpg" width="200" />
 </p>
 
 - 🔗 [API ativa em produção (Swagger UI)](https://carboneye-api.onrender.com/api/docs)
