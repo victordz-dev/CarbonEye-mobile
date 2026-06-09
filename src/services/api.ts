@@ -1,6 +1,6 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
 
 export let API_URL = 'https://carboneye-api.onrender.com';
 
@@ -35,11 +35,10 @@ api.interceptors.response.use(
     // Verificar se é um erro de integração padronizado pelo backend
     const msg = error.response?.data?.message || '';
     
+    // O erro será repassado e deverá ser tratado pela interface ou pelo React Query
     if (typeof msg === 'string' && msg.includes('INTEGRATION_ERROR')) {
-      Alert.alert(
-        'Erro de Integração',
-        'Não foi possível comunicar com o satélite no momento. Tente novamente mais tarde.'
-      );
+      // Interceptado silenciosamente aqui, mas a interface fará o Alert
+      console.warn('Erro de integração interceptado no backend');
     }
     
     // Tenta enviar o log de erro para o backend silenciosamente

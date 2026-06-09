@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "carboneye",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
@@ -13,6 +13,8 @@
     "axios": "^1.17.0",
     "cpf-cnpj-validator": "^2.1.2",
     "expo": "~55.0.26",
+    "expo-device": "~55.0.17",
+    "expo-notifications": "~55.0.23",
     "expo-status-bar": "~55.0.0",
     "lucide-react-native": "^1.17.0",
     "react": "19.2.0",
@@ -39,8 +41,8 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest"
   },

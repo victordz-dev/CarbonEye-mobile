@@ -67,6 +67,16 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const handleCpfChange = (text: string) => {
+    const numericValue = text.replace(/\D/g, '');
+    let formattedValue = numericValue;
+    formattedValue = formattedValue
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    setCpf(formattedValue);
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -95,12 +105,12 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={[styles.label, { color: colors.text }]}>CPF</Text>
             <TextInput
               style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.background }]}
-              placeholder="Somente os 11 números"
+              placeholder="Ex: 000.000.000-00"
               placeholderTextColor={colors.textSecondary}
               value={cpf}
-              onChangeText={setCpf}
+              onChangeText={handleCpfChange}
               keyboardType="numeric"
-              maxLength={11}
+              maxLength={14}
             />
           </View>
 

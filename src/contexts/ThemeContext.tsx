@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { ThemeColors, lightColors, darkColors } from '../theme';
 
 export interface ThemeContextType {
@@ -16,11 +18,29 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isDark, setIsDark] = useState<boolean>(systemScheme === 'dark');
 
   useEffect(() => {
-    setIsDark(systemScheme === 'dark');
+    const loadTheme = async () => {
+      try {
+        const savedTheme = await AsyncStorage.getItem('@carboneye:theme');
+        if (savedTheme !== null) {
+          setIsDark(savedTheme === 'dark');
+        } else {
+          setIsDark(systemScheme === 'dark');
+        }
+      } catch (error) {
+        console.error('Failed to load theme from storage', error);
+      }
+    };
+    loadTheme();
   }, [systemScheme]);
 
-  const toggleTheme = () => {
-    setIsDark((prev) => !prev);
+  const toggleTheme = async () => {
+    try {
+      const newTheme = !isDark;
+      setIsDark(newTheme);
+      await AsyncStorage.setItem('@carboneye:theme', newTheme ? 'dark' : 'light');
+    } catch (error) {
+      console.error('Failed to save theme to storage', error);
+    }
   };
 
   const colors = isDark ? darkColors : lightColors;

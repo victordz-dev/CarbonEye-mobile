@@ -59,10 +59,10 @@ export const TestAreaScreen: React.FC = () => {
 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Áreas Disponíveis</Text>
       
-      {areas.length === 0 ? (
-        <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>Nenhuma área cadastrada.</Text>
+      {areas.filter(a => a.monitoramentoAtivo).length === 0 ? (
+        <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>Nenhuma área sendo monitorada.</Text>
       ) : (
-        areas.map((area) => (
+        areas.filter(a => a.monitoramentoAtivo).map((area) => (
           <TouchableOpacity
             key={area.id}
             style={[

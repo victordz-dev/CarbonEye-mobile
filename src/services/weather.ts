@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Utilizando a chave do ambiente ou uma de fallback para demonstração acadêmica
-const OPENWEATHER_API_KEY = process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY;
+const OPENWEATHER_API_KEY = "36211b75622fcd873ce2cb20b97b928d";
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 const weatherApi = axios.create({

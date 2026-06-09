@@ -10,6 +10,9 @@ import { useTheme } from '../contexts/ThemeContext';
 
 // Navigation Params
 import { RootStackParamList, AuthStackParamList, MainTabParamList } from '../types/navigation';
+import { usePushNotifications } from '../hooks';
+import api from '../services/api';
+import { useEffect } from 'react';
 
 // Screens
 import { LoginScreen } from '../screens/LoginScreen';
@@ -95,6 +98,20 @@ const TabNavigator: React.FC = () => {
   );
 };
 
+const PushNotificationManager: React.FC = () => {
+  const { expoPushToken } = usePushNotifications();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && expoPushToken) {
+      api.patch('/auth/push-token', { token: expoPushToken })
+        .catch(err => console.warn('Falha ao sincronizar push token:', err.message));
+    }
+  }, [user, expoPushToken]);
+
+  return null;
+};
+
 export const AppNavigator: React.FC = () => {
   const { user, isLoading } = useAuth();
   const { colors } = useTheme();
@@ -108,58 +125,61 @@ export const AppNavigator: React.FC = () => {
   }
 
   return (
-    <RootStack.Navigator screenOptions={{ headerShown: false }}>
-      {user === null ? (
-        <RootStack.Screen name="Auth" component={AuthNavigator} />
-      ) : (
-        <>
-          <RootStack.Screen name="Main" component={TabNavigator} />
-          <RootStack.Screen
-            name="Details"
-            component={DetailsScreen}
-            options={{
-              headerShown: true,
-              title: 'Laudo SIRI Detalhado',
-              headerStyle: { backgroundColor: colors.surface },
-              headerTintColor: colors.text,
-              headerTitleStyle: { fontWeight: 'bold' },
-            }}
-          />
-          <RootStack.Screen
-            name="HealthCheck"
-            component={HealthCheckScreen}
-            options={{
-              headerShown: true,
-              title: 'Diagnóstico de APIs',
-              headerStyle: { backgroundColor: colors.surface },
-              headerTintColor: colors.text,
-              headerTitleStyle: { fontWeight: 'bold' },
-            }}
-          />
-          <RootStack.Screen
-            name="Notifications"
-            component={NotificationsScreen}
-            options={{
-              headerShown: true,
-              title: 'Notificações',
-              headerStyle: { backgroundColor: colors.surface },
-              headerTintColor: colors.text,
-              headerTitleStyle: { fontWeight: 'bold' },
-            }}
-          />
-          <RootStack.Screen
-            name="TestArea"
-            component={TestAreaScreen}
-            options={{
-              headerShown: true,
-              title: 'Área de Testes',
-              headerStyle: { backgroundColor: colors.surface },
-              headerTintColor: colors.text,
-              headerTitleStyle: { fontWeight: 'bold' },
-            }}
-          />
-        </>
-      )}
-    </RootStack.Navigator>
+    <>
+      <PushNotificationManager />
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        {user === null ? (
+          <RootStack.Screen name="Auth" component={AuthNavigator} />
+        ) : (
+          <>
+            <RootStack.Screen name="Main" component={TabNavigator} />
+            <RootStack.Screen
+              name="Details"
+              component={DetailsScreen}
+              options={{
+                headerShown: true,
+                title: 'Laudo SIRI Detalhado',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
+                headerTitleStyle: { fontWeight: 'bold' },
+              }}
+            />
+            <RootStack.Screen
+              name="HealthCheck"
+              component={HealthCheckScreen}
+              options={{
+                headerShown: true,
+                title: 'Diagnóstico de APIs',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
+                headerTitleStyle: { fontWeight: 'bold' },
+              }}
+            />
+            <RootStack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+              options={{
+                headerShown: true,
+                title: 'Notificações',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
+                headerTitleStyle: { fontWeight: 'bold' },
+              }}
+            />
+            <RootStack.Screen
+              name="TestArea"
+              component={TestAreaScreen}
+              options={{
+                headerShown: true,
+                title: 'Área de Testes',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
+                headerTitleStyle: { fontWeight: 'bold' },
+              }}
+            />
+          </>
+        )}
+      </RootStack.Navigator>
+    </>
   );
 };

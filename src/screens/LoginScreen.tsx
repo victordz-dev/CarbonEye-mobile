@@ -15,6 +15,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../types/navigation';
 import { useAuth, useTheme } from '../hooks';
 import api from '../services/api';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email('E-mail inválido.'),
+  senha: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.'),
+});
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -26,9 +32,13 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const { colors } = useTheme();
 
   const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
-      return;
+    try {
+      loginSchema.parse({ email, senha });
+    } catch (e: any) {
+      if (e instanceof z.ZodError) {
+        Alert.alert('Erro de Validação', e.errors[0].message);
+        return;
+      }
     }
 
     setLoading(true);

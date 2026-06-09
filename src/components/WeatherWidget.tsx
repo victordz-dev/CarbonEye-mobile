@@ -7,15 +7,29 @@ import { useTheme } from '../hooks';
 interface WeatherWidgetProps {
   latitude: number;
   longitude: number;
+  isActive?: boolean;
+  snapshotData?: {
+    temp: number | null;
+    humidity: number | null;
+  };
 }
 
-export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ latitude, longitude }) => {
+export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ 
+  latitude, 
+  longitude, 
+  isActive = true,
+  snapshotData 
+}) => {
   const { colors } = useTheme();
   const [weatherData, setWeatherData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isActive);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    if (!isActive) {
+      setLoading(false);
+      return;
+    }
     const fetchWeather = async () => {
       try {
         setLoading(true);
@@ -30,7 +44,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ latitude, longitud
       }
     };
     fetchWeather();
-  }, [latitude, longitude]);
+  }, [latitude, longitude, isActive]);
 
   if (loading) {
     return (
@@ -41,7 +55,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ latitude, longitud
     );
   }
 
-  if (error || !weatherData) {
+  if (isActive && (error || !weatherData)) {
     return (
       <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Text style={{ color: colors.danger, fontSize: 12 }}>Não foi possível carregar o clima local (OpenWeather).</Text>
@@ -49,21 +63,26 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ latitude, longitud
     );
   }
 
-  const { main, weather, wind } = weatherData;
-  const temp = Math.round(main.temp);
-  const desc = weather[0]?.description;
+  const isSnapshot = !isActive;
+  
+  const temp = isSnapshot ? (snapshotData?.temp ? Math.round(snapshotData.temp) : '--') : Math.round(weatherData?.main?.temp);
+  const humidity = isSnapshot ? (snapshotData?.humidity ? Math.round(snapshotData.humidity) : '--') : weatherData?.main?.humidity;
+  const desc = isSnapshot ? 'Condição Histórica' : weatherData?.weather[0]?.description;
+  const windSpeed = isSnapshot ? '--' : weatherData?.wind?.speed;
   
   // Choose icon based on weather main
   let WeatherIcon = Sun;
-  const condition = weather[0]?.main?.toLowerCase();
+  const condition = weatherData?.weather[0]?.main?.toLowerCase();
   if (condition?.includes('rain')) WeatherIcon = CloudRain;
   else if (condition?.includes('cloud')) WeatherIcon = Cloud;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border, opacity: isSnapshot ? 0.8 : 1 }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Clima Local Atual</Text>
-        <Text style={[styles.badge, { backgroundColor: colors.primary, color: '#fff' }]}>Ao vivo via OpenWeather</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Clima Local</Text>
+        <Text style={[styles.badge, { backgroundColor: isSnapshot ? colors.textSecondary : colors.primary, color: '#fff' }]}>
+          {isSnapshot ? 'Snapshot Salvo' : 'Ao vivo via OpenWeather'}
+        </Text>
       </View>
       
       <View style={styles.mainRow}>
@@ -76,11 +95,11 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({ latitude, longitud
           <Text style={[styles.descText, { color: colors.textSecondary }]}>{desc.charAt(0).toUpperCase() + desc.slice(1)}</Text>
           <View style={styles.infoRow}>
             <Droplets size={14} color={colors.textSecondary} />
-            <Text style={[styles.infoText, { color: colors.textSecondary }]}>Umidade: {main.humidity}%</Text>
+            <Text style={[styles.infoText, { color: colors.textSecondary }]}>Umidade: {humidity}%</Text>
           </View>
           <View style={styles.infoRow}>
             <Wind size={14} color={colors.textSecondary} />
-            <Text style={[styles.infoText, { color: colors.textSecondary }]}>Vento: {wind.speed} m/s</Text>
+            <Text style={[styles.infoText, { color: colors.textSecondary }]}>Vento: {windSpeed} m/s</Text>
           </View>
         </View>
       </View>
