@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ScrollView, TouchableOpacity, Text, Alert, StyleSheet } from 'react-native';
+import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
-import { useAuth, useTheme } from '../hooks';
+import { useAuth, useTheme, useAlert } from '../hooks';
 import api from '../services/api';
 import { z } from 'zod';
 import { ProfileEditor, ProfileData, SystemMenu } from '../components';
@@ -27,6 +27,7 @@ export const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, login, logout } = useAuth();
   const { isDark, colors, toggleTheme } = useTheme();
+  const { alert } = useAlert();
 
   const [loading, setLoading] = useState(false);
 
@@ -43,13 +44,13 @@ export const SettingsScreen: React.FC = () => {
       });
     } catch (e: any) {
       if (e instanceof z.ZodError) {
-        Alert.alert('Erro de Validação', e.errors[0].message);
+        alert('Erro de Validação', e.errors[0].message);
         return;
       }
     }
 
     if ((mudouEmail || querMudarSenha) && !data.senhaAtual) {
-      Alert.alert('Atenção', 'Você precisa informar sua Senha Atual para alterar seu e-mail ou cadastrar uma nova senha.');
+      alert('Atenção', 'Você precisa informar sua Senha Atual para alterar seu e-mail ou cadastrar uma nova senha.');
       return;
     }
 
@@ -69,17 +70,17 @@ export const SettingsScreen: React.FC = () => {
       const response = await api.put<{ token: string; usuario: any }>('/auth/profile', payload);
       await login(response.data.token, response.data.usuario);
       
-      Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+      alert('Sucesso', 'Perfil atualizado com sucesso!');
     } catch (error: any) {
       const msg = error.response?.data?.message || 'Falha ao atualizar perfil.';
-      Alert.alert('Erro', msg);
+      alert('Erro', msg);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    Alert.alert('Sair', 'Tem certeza de que deseja sair da sua conta?', [
+    alert('Sair', 'Tem certeza de que deseja sair da sua conta?', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Sair',
@@ -92,7 +93,7 @@ export const SettingsScreen: React.FC = () => {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    alert(
       'Excluir Conta',
       'Tem certeza absoluta de que deseja excluir sua conta? Esta ação desativará seu acesso.',
       [
@@ -104,10 +105,10 @@ export const SettingsScreen: React.FC = () => {
             try {
               setLoading(true);
               await api.delete('/auth/profile');
-              Alert.alert('Conta Excluída', 'Sua conta foi desativada com sucesso.');
+              alert('Conta Excluída', 'Sua conta foi desativada com sucesso.');
               await logout();
             } catch (error: any) {
-              Alert.alert('Erro', 'Não foi possível excluir a conta no momento.');
+              alert('Erro', 'Não foi possível excluir a conta no momento.');
             } finally {
               setLoading(false);
             }

@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Dimensions } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-import { useTheme, useAuth } from '../hooks';
+import { useTheme, useAuth, useAlert } from '../hooks';
 import { Skeleton, CarbonEstimationCard, SiriComponentsCard, ChartNDVI, DetailsHeader, DetailsStatus, DetailsActions } from '../components';
 import { WeatherWidget } from '../components/WeatherWidget';
 import { Area } from '../types';
@@ -32,6 +32,7 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   const { areaId } = route.params;
   const { colors } = useTheme();
   const { token } = useAuth();
+  const { alert } = useAlert();
 
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
@@ -45,12 +46,12 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     },
     onError: (error: unknown) => {
       const msg = (error as any)?.response?.data?.message || 'Falha ao atualizar status de monitoramento.';
-      Alert.alert('Erro', msg);
+      alert('Erro', msg);
     }
   });
 
   const handleDisableMonitor = useCallback(() => {
-    Alert.alert(
+    alert(
       'Desativar Monitoramento',
       '⚠️ AÇÃO IRREVERSÍVEL\n\nAo desativar o monitoramento:\n\n• O polígono será excluído permanentemente do satélite (AgroMonitoring)\n• Não será possível reativar o monitoramento nesta área\n• A área ficará salva apenas no histórico\n\nDeseja continuar?',
       [
@@ -127,7 +128,7 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handleExportPdf = useCallback(async () => {
     if (!token) {
-      Alert.alert('Erro', 'Sessão expirada. Autentique-se novamente.');
+      alert('Erro', 'Sessão expirada. Autentique-se novamente.');
       return;
     }
     const pdfUrl = `${API_URL}/areas/${areaId}/laudo-pdf?token=${token}`;
@@ -136,10 +137,10 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       if (supported) {
         await Linking.openURL(pdfUrl);
       } else {
-        Alert.alert('Erro', 'Não foi possível abrir o link de download.');
+        alert('Erro', 'Não foi possível abrir o link de download.');
       }
     } catch (e) {
-      Alert.alert('Erro', 'Falha ao processar download do laudo.');
+      alert('Erro', 'Falha ao processar download do laudo.');
     }
   }, [token, areaId]);
 

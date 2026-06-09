@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput } from 'react-native';
 import { Edit2, PowerOff, Trash2 } from 'lucide-react-native';
 import { Area } from '../types';
-import { useTheme } from '../hooks';
+import { useTheme, useAlert } from '../hooks';
 
 interface AreaActionModalsProps {
   area: Area | null;
@@ -26,6 +26,7 @@ export const AreaActionModals: React.FC<AreaActionModalsProps> = ({
   onDelete
 }) => {
   const { colors } = useTheme();
+  const { alert } = useAlert();
   const [newName, setNewName] = useState('');
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const AreaActionModals: React.FC<AreaActionModalsProps> = ({
 
   const handleDelete = () => {
     if (!area) return;
-    Alert.alert('Excluir Área', `Tem certeza que deseja excluir "${area.nome}"? Isso não pode ser desfeito.`, [
+    alert('Excluir Área', `Tem certeza que deseja excluir "${area.nome}"? Isso não pode ser desfeito.`, [
       { text: 'Cancelar', style: 'cancel' },
       { 
         text: 'Excluir', 
@@ -51,7 +52,7 @@ export const AreaActionModals: React.FC<AreaActionModalsProps> = ({
     if (!area) return;
     setActionModalVisible(false);
     
-    Alert.alert(
+    alert(
       'Desativar Monitoramento',
       '⚠️ AÇÃO IRREVERSÍVEL\n\nAo desativar o monitoramento:\n\n• O polígono será excluído permanentemente do satélite (AgroMonitoring)\n• Não será possível reativar o monitoramento nesta área\n• A área ficará salva apenas no histórico\n\nDeseja continuar?',
       [

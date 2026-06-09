@@ -49,10 +49,15 @@ export const LEAFLET_HTML = `
     map.on('click', function(e) {
       var lat = e.latlng.lat;
       var lng = e.latlng.lng;
-      window.ReactNativeWebView.postMessage(JSON.stringify({
+      var message = JSON.stringify({
         type: 'MAP_CLICK',
         coordinate: { latitude: lat, longitude: lng }
-      }));
+      });
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(message);
+      } else {
+        window.parent.postMessage(message, '*');
+      }
     });
 
     function handleMessage(event) {

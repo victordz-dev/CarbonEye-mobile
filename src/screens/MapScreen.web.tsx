@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
+import { useAlert } from '../hooks';
 import { InteractiveMap } from '../components/Map/InteractiveMap';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +25,7 @@ export const MapScreen: React.FC = () => {
   const [monitorar, setMonitorar] = useState<boolean>(true);
   const [loadingText, setLoadingText] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { alert } = useAlert();
 
   const [analiseResultado, setAnaliseResultado] = useState<{
     status_territorial: string;
@@ -49,7 +51,7 @@ export const MapScreen: React.FC = () => {
     },
     onError: (error: unknown) => {
       const msg = (error as any)?.response?.data?.message || 'Falha ao analisar a área.';
-      Alert.alert('Erro na Análise', msg);
+      alert('Erro na Análise', msg);
     }
   });
 
@@ -110,7 +112,7 @@ export const MapScreen: React.FC = () => {
       setPontos(prev => [...prev, coord]);
       setSearchQuery('');
     } else {
-      Alert.alert('Formato Inválido', 'Digite no formato: Latitude, Longitude (ex: -12.34, -45.67)');
+      alert('Formato Inválido', 'Digite no formato: Latitude, Longitude (ex: -12.34, -45.67)');
     }
   };
 
@@ -128,11 +130,11 @@ export const MapScreen: React.FC = () => {
   const iniciarAnalise = () => {
     setAnaliseResultado(null);
     if (pontos.length < 3) {
-      Alert.alert('Erro', 'Desenhe pelo menos 3 pontos no mapa para formar um polígono.');
+      alert('Erro', 'Desenhe pelo menos 3 pontos no mapa para formar um polígono.');
       return;
     }
     if (verificarAutoIntersecao(pontos)) {
-      Alert.alert('Erro de Geometria', 'O polígono possui autointerseções (arestas que se cruzam). Ajuste o desenho.');
+      alert('Erro de Geometria', 'O polígono possui autointerseções (arestas que se cruzam). Ajuste o desenho.');
       return;
     }
     iniciarAnaliseMutation.mutate(pontos);
@@ -142,7 +144,7 @@ export const MapScreen: React.FC = () => {
     mutationFn: (data: any) => api.post('/areas', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['areas'] });
-      Alert.alert('Sucesso', 'Área salva com sucesso!', [
+      alert('Sucesso', 'Área salva com sucesso!', [
         { text: 'OK', onPress: () => (navigation as any).navigate('Home') }
       ]);
       setAnaliseResultado(null);
@@ -152,7 +154,7 @@ export const MapScreen: React.FC = () => {
     },
     onError: (error: unknown) => {
       const msg = (error as any)?.response?.data?.message || 'Falha ao salvar a área.';
-      Alert.alert('Erro ao Salvar', msg);
+      alert('Erro ao Salvar', msg);
     }
   });
 
@@ -161,7 +163,7 @@ export const MapScreen: React.FC = () => {
       areaSchema.parse({ nome });
     } catch (e: any) {
       if (e instanceof z.ZodError) {
-        Alert.alert('Erro de Validação', e.errors[0].message);
+        alert('Erro de Validação', e.errors[0].message);
         return;
       }
     }
@@ -191,7 +193,7 @@ export const MapScreen: React.FC = () => {
           onMapClick={(coordinate) => {
             if (analiseResultado) return;
             if (pontos.length >= 50) {
-              Alert.alert('Limite Atingido', 'O limite é de 50 vértices por polígono.');
+              alert('Limite Atingido', 'O limite é de 50 vértices por polígono.');
               return;
             }
             isClickRef.current = true;

@@ -9,11 +9,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../types/navigation';
-import { useAuth, useTheme } from '../hooks';
+import { useAuth, useTheme, useAlert } from '../hooks';
 import api from '../services/api';
 import { z } from 'zod';
 
@@ -30,13 +29,14 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const { login } = useAuth();
   const { colors } = useTheme();
+  const { alert } = useAlert();
 
   const handleLogin = async () => {
     try {
       loginSchema.parse({ email, senha });
     } catch (e: any) {
       if (e instanceof z.ZodError) {
-        Alert.alert('Erro de Validação', e.errors[0].message);
+        alert('Erro de Validação', e.errors[0].message);
         return;
       }
     }
@@ -50,7 +50,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
       await login(response.data.token, response.data.usuario);
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Falha na conexão.';
-      Alert.alert('Falha no Login', msg);
+      alert('Falha no Login', msg);
     } finally {
       setLoading(false);
     }

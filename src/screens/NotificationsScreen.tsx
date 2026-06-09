@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useTheme, useAuth } from '../hooks';
+import { useTheme, useAuth, useAlert } from '../hooks';
 import api, { API_URL } from '../services/api';
 
 interface Alerta {
@@ -21,6 +21,7 @@ export const NotificationsScreen: React.FC = () => {
   const { colors } = useTheme();
   const { token } = useAuth();
   const queryClient = useQueryClient();
+  const { alert } = useAlert();
 
   const { data: alertas = [], isLoading: loading } = useQuery({
     queryKey: ['alertas'],
@@ -37,7 +38,7 @@ export const NotificationsScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['areas'] });
     },
     onError: () => {
-      Alert.alert('Erro', 'Não foi possível marcar como lida.');
+      alert('Erro', 'Não foi possível marcar como lida.');
     }
   });
 
@@ -48,7 +49,7 @@ export const NotificationsScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['areas'] });
     },
     onError: () => {
-      Alert.alert('Erro', 'Não foi possível excluir a notificação.');
+      alert('Erro', 'Não foi possível excluir a notificação.');
     }
   });
 
@@ -67,10 +68,10 @@ export const NotificationsScreen: React.FC = () => {
       if (supported) {
         await Linking.openURL(pdfUrl);
       } else {
-        Alert.alert('Erro', 'Não foi possível abrir o link do relatório.');
+        alert('Erro', 'Não foi possível abrir o link do relatório.');
       }
     } catch (error) {
-      Alert.alert('Erro', 'Ocorreu um erro ao tentar abrir o relatório.');
+      alert('Erro', 'Ocorreu um erro ao tentar abrir o relatório.');
     }
   };
 

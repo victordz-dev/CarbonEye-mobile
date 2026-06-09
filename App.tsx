@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Providers
 import { AuthProvider } from './src/contexts/AuthContext';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { AlertProvider } from './src/contexts/AlertContext';
 
 // Navigation
 import { AppNavigator } from './src/navigation/AppNavigator';
@@ -43,9 +44,12 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <NavigationWrapper />
+          <AlertProvider>
+            <NavigationWrapper />
+          </AlertProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
 }
+

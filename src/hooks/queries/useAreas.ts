@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 import api from '../../services/api';
 import { Area } from '../../types';
+import { useAlert } from '../index';
 
 export const useAreas = () => {
   const queryClient = useQueryClient();
+  const { alert } = useAlert();
 
   const areasQuery = useQuery({
     queryKey: ['areas'],
@@ -19,7 +20,7 @@ export const useAreas = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['areas'] });
     },
-    onError: () => Alert.alert('Erro', 'Não foi possível excluir a área.')
+    onError: () => alert('Erro', 'Não foi possível excluir a área.')
   });
 
   // Monitoramento é unidirecional: só pode desativar (nunca reativar)
@@ -32,12 +33,12 @@ export const useAreas = () => {
     onError: (error: any) => {
       const msg = error?.response?.data?.message || '';
       if (typeof msg === 'string' && msg.includes('INTEGRATION_ERROR')) {
-        Alert.alert(
+        alert(
           'Erro de Integração',
           'Não foi possível comunicar com o satélite no momento. Tente novamente mais tarde.'
         );
       } else {
-        Alert.alert('Erro', 'Não foi possível desativar o monitoramento.');
+        alert('Erro', 'Não foi possível desativar o monitoramento.');
       }
     }
   });
@@ -48,7 +49,7 @@ export const useAreas = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['areas'] });
     },
-    onError: () => Alert.alert('Erro', 'Não foi possível renomear a área.')
+    onError: () => alert('Erro', 'Não foi possível renomear a área.')
   });
 
   return {

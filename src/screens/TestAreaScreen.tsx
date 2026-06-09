@@ -1,13 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BugPlay, AlertTriangle } from 'lucide-react-native';
 import api from '../services/api';
-import { useTheme } from '../hooks';
+import { useTheme, useAlert } from '../hooks';
 import { Area } from '../types';
 
 export const TestAreaScreen: React.FC = () => {
   const { colors } = useTheme();
+  const { alert } = useAlert();
   const queryClient = useQueryClient();
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
 
@@ -24,18 +25,18 @@ export const TestAreaScreen: React.FC = () => {
   const mockMutation = useMutation({
     mutationFn: (areaId: string) => api.post(`/areas/${areaId}/alertas/mock`),
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Um alerta mockado foi gerado para esta área! Verifique a central de notificações.');
+      alert('Sucesso', 'Um alerta mockado foi gerado para esta área! Verifique a central de notificações.');
       queryClient.invalidateQueries({ queryKey: ['alertas'] });
       queryClient.invalidateQueries({ queryKey: ['areas'] });
     },
     onError: () => {
-      Alert.alert('Erro', 'Não foi possível gerar o alerta.');
+      alert('Erro', 'Não foi possível gerar o alerta.');
     }
   });
 
   const handleGenerateAlert = useCallback(() => {
     if (!selectedAreaId) {
-      Alert.alert('Atenção', 'Selecione uma área primeiro.');
+      alert('Atenção', 'Selecione uma área primeiro.');
       return;
     }
     mockMutation.mutate(selectedAreaId);

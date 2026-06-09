@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { RootStackParamList } from '../types/navigation';
-import { useTheme, useFavorites } from '../hooks';
+import { useTheme, useFavorites, useAlert } from '../hooks';
 import { Area } from '../types';
 import api from '../services/api';
 import { HistoryFilters, StatusFilter, HistoryCard } from '../components';
@@ -12,6 +12,7 @@ export const HistoryScreen: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { alert } = useAlert();
 
   const queryClient = useQueryClient();
 
@@ -30,16 +31,16 @@ export const HistoryScreen: React.FC = () => {
     mutationFn: (areaId: string) => api.delete(`/areas/${areaId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['areas'] });
-      Alert.alert('Sucesso', 'Área excluída com sucesso.');
+      alert('Sucesso', 'Área excluída com sucesso.');
     },
     onError: (error: unknown) => {
       const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Falha ao excluir.';
-      Alert.alert('Erro', msg);
+      alert('Erro', msg);
     }
   });
 
   const excluirArea = useCallback((areaId: string, areaNome: string) => {
-    Alert.alert(
+    alert(
       'Confirmar Exclusão',
       `Tem certeza de que deseja excluir a área "${areaNome}" do histórico?`,
       [
