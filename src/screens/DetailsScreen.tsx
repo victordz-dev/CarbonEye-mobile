@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking, Dimensions } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -33,12 +33,6 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   const { colors } = useTheme();
   const { token } = useAuth();
 
-  const [historico, setHistorico] = useState<{ data: string; valor: number }[]>([]);
-  const [focosIncendio, setFocosIncendio] = useState<number>(0);
-  const [eviAtual, setEviAtual] = useState<number | null>(null);
-  const [ndwiAtual, setNdwiAtual] = useState<number | null>(null);
-  const [umidadeSolo, setUmidadeSolo] = useState<number | null>(null);
-  const [tempSolo, setTempSolo] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
@@ -55,20 +49,20 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   });
 
-  const handleDisableMonitor = () => {
+  const handleDisableMonitor = useCallback(() => {
     Alert.alert(
       'Desativar Monitoramento',
-      'Aviso: ao retirar o monitoramento, não será mais possível ativá-lo nesta área novamente. Ela ficará salva apenas no histórico.\n\nDeseja continuar?',
+      '⚠️ AÇÃO IRREVERSÍVEL\n\nAo desativar o monitoramento:\n\n• O polígono será excluído permanentemente do satélite (AgroMonitoring)\n• Não será possível reativar o monitoramento nesta área\n• A área ficará salva apenas no histórico\n\nDeseja continuar?',
       [
         { text: 'Cancelar', style: 'cancel' },
         { 
-          text: 'Desativar', 
+          text: 'Desativar Permanentemente', 
           style: 'destructive',
           onPress: () => toggleMonitorMutation.mutate({ id: areaId, ativo: false })
         }
       ]
     );
-  };
+  }, [areaId, toggleMonitorMutation]);
 
   const { data: area, isLoading: loadingArea } = useQuery({
     queryKey: ['areas', areaId],
@@ -98,26 +92,26 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const loading = loadingArea || loadingHist;
 
-  useEffect(() => {
-    if (histData && histData.linha_do_tempo_ndvi) {
-      setHistorico(histData.linha_do_tempo_ndvi);
-      setFocosIncendio(histData.ocorrencias_incendio || 0);
-      setEviAtual(histData.evi_atual ?? null);
-      setNdwiAtual(histData.ndwi_atual ?? null);
-      setUmidadeSolo(histData.umidade_solo ?? null);
-      setTempSolo(histData.temp_solo ?? null);
-    }
-  }, [histData]);
+  // Derivar dados diretamente do React Query ao invés de duplicar em estados locais
+  const historico = useMemo(() => histData?.linha_do_tempo_ndvi ?? [], [histData]);
+  const focosIncendio = useMemo(() => histData?.ocorrencias_incendio ?? 0, [histData]);
+  const eviAtual = useMemo(() => histData?.evi_atual ?? null, [histData]);
+  const ndwiAtual = useMemo(() => histData?.ndwi_atual ?? null, [histData]);
+  const umidadeSolo = useMemo(() => histData?.umidade_solo ?? null, [histData]);
+  const tempSolo = useMemo(() => histData?.temp_solo ?? null, [histData]);
 
   const availableYears = useMemo(() => {
-    if (!historico) return [];
+    if (!historico || historico.length === 0) return [];
     const years = new Set(historico.map(item => new Date(item.data).getFullYear()));
-    const sorted = Array.from(years).sort((a, b) => b - a);
-    if (sorted.length > 0 && selectedYear === null) {
-      setSelectedYear(sorted[0]);
-    }
-    return sorted;
+    return Array.from(years).sort((a, b) => b - a);
   }, [historico]);
+
+  // Inicializar selectedYear quando anos disponíveis mudarem (sem side effect dentro de useMemo)
+  useEffect(() => {
+    if (availableYears.length > 0 && selectedYear === null) {
+      setSelectedYear(availableYears[0]);
+    }
+  }, [availableYears, selectedYear]);
 
   const yearData = useMemo(() => {
     if (!historico || !selectedYear) return [];
@@ -131,7 +125,7 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     return endVal - startVal;
   }, [yearData]);
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = useCallback(async () => {
     if (!token) {
       Alert.alert('Erro', 'Sessão expirada. Autentique-se novamente.');
       return;
@@ -147,7 +141,7 @@ export const DetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     } catch (e) {
       Alert.alert('Erro', 'Falha ao processar download do laudo.');
     }
-  };
+  }, [token, areaId]);
 
   if (loading) {
     return (
@@ -271,3 +265,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+

@@ -16,7 +16,7 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   Auth: undefined;
   Main: NavigatorScreenParams<MainTabParamList>;
-  Details: { areaId: string; areaNome: string };
+  Details: { areaId: string };
   HealthCheck: undefined;
   Notifications: undefined;
   TestArea: undefined;

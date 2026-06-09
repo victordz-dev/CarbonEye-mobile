@@ -19,47 +19,49 @@ interface ApiStatus {
   description: string;
 }
 
+const INITIAL_STATUSES: ApiStatus[] = [
+  {
+    name: 'Servidor Principal (Backend)',
+    url: `${API_URL}/areas`,
+    status: 'checking',
+    latency: 0,
+    description: 'Serviço central de cálculo e monitoramento PostGIS.',
+  },
+  {
+    name: 'API de Monitoramento Termal',
+    url: 'https://firms.modaps.eosdis.nasa.gov',
+    status: 'checking',
+    latency: 0,
+    description: 'Monitoramento de focos de incêndio e anomalias termais em tempo real.',
+  },
+  {
+    name: 'API de Monitoramento via Satélite',
+    url: 'https://api.agromonitoring.com/agro/1.0/polygons?appid=check',
+    status: 'checking',
+    latency: 0,
+    description: 'Imagens multiespectrais e histórico de índice vegetativo.',
+  },
+  {
+    name: 'API de Risco Climático',
+    url: 'https://api.openweathermap.org/data/2.5/weather?q=Campinas&appid=check',
+    status: 'checking',
+    latency: 0,
+    description: 'Serviço de dados meteorológicos para previsão e alertas climáticos.',
+  }
+];
+
 export const HealthCheckScreen: React.FC = () => {
   const { colors } = useTheme();
-  const [statuses, setStatuses] = useState<ApiStatus[]>([
-    {
-      name: 'Servidor Principal (Backend)',
-      url: `${API_URL}/areas`,
-      status: 'checking',
-      latency: 0,
-      description: 'Serviço central de cálculo e monitoramento PostGIS.',
-    },
-    {
-      name: 'API de Monitoramento Termal',
-      url: 'https://firms.modaps.eosdis.nasa.gov',
-      status: 'checking',
-      latency: 0,
-      description: 'Monitoramento de focos de incêndio e anomalias termais em tempo real.',
-    },
-    {
-      name: 'API de Monitoramento via Satélite',
-      url: 'https://api.agromonitoring.com/agro/1.0/polygons?appid=check',
-      status: 'checking',
-      latency: 0,
-      description: 'Imagens multiespectrais e histórico de índice vegetativo.',
-    },
-    {
-      name: 'API de Risco Climático',
-      url: 'https://api.openweathermap.org/data/2.5/weather?q=Campinas&appid=check',
-      status: 'checking',
-      latency: 0,
-      description: 'Serviço de dados meteorológicos para previsão e alertas climáticos.',
-    }
-  ]);
+  const [statuses, setStatuses] = useState<ApiStatus[]>(INITIAL_STATUSES);
 
   const runHealthCheck = useCallback(async () => {
     // Reset all statuses to checking
-    setStatuses((prev) => prev.map((s) => ({ ...s, status: 'checking', latency: 0 })));
+    setStatuses(INITIAL_STATUSES.map((s) => ({ ...s, status: 'checking', latency: 0 })));
 
     const checkService = async (item: ApiStatus): Promise<ApiStatus> => {
       const startTime = Date.now();
       try {
-        if (item.name.includes('CarbonEye')) {
+        if (item.name.includes('Backend')) {
           // Check backend using our axios client
           try {
             await api.get('/areas', { timeout: 6000 });
@@ -114,9 +116,9 @@ export const HealthCheckScreen: React.FC = () => {
       }
     };
 
-    // Run checks sequentially to avoid network congestion interference
-    for (let i = 0; i < statuses.length; i++) {
-      const updatedStatus = await checkService(statuses[i]);
+    // Run checks sequentially using the constant definitions to avoid stale closure
+    for (let i = 0; i < INITIAL_STATUSES.length; i++) {
+      const updatedStatus = await checkService(INITIAL_STATUSES[i]);
       setStatuses((prev) => {
         const copy = [...prev];
         copy[i] = updatedStatus;

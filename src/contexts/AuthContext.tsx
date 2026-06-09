@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { storage } from '../storage';
+import { logService } from '../services/logService';
 
 export interface AuthContextType {
   user: User | null;
@@ -43,6 +44,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await storage.setUser(newUser);
       setToken(newToken);
       setUser(newUser);
+      // Envia logs bufferizados que foram gerados antes do login
+      await logService.onAuthenticated();
     } catch (error) {
       console.error('Failed to save session:', error);
     }
@@ -50,6 +53,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      // Persiste o buffer de logs antes de limpar sessão
+      await logService.onLogout();
       await storage.clearSession();
       setToken(null);
       setUser(null);

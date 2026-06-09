@@ -11,7 +11,7 @@ interface AreaActionModalsProps {
   renameModalVisible: boolean;
   setRenameModalVisible: (visible: boolean) => void;
   onRename: (id: string, newName: string) => void;
-  onToggleMonitor: (id: string, ativo: boolean) => void;
+  onToggleMonitor: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -53,13 +53,13 @@ export const AreaActionModals: React.FC<AreaActionModalsProps> = ({
     
     Alert.alert(
       'Desativar Monitoramento',
-      'Aviso: ao retirar o monitoramento, não será mais possível ativá-lo nesta área novamente. Ela ficará salva apenas no histórico.\n\nDeseja continuar?',
+      '⚠️ AÇÃO IRREVERSÍVEL\n\nAo desativar o monitoramento:\n\n• O polígono será excluído permanentemente do satélite (AgroMonitoring)\n• Não será possível reativar o monitoramento nesta área\n• A área ficará salva apenas no histórico\n\nDeseja continuar?',
       [
         { text: 'Cancelar', style: 'cancel' },
         { 
-          text: 'Desativar', 
+          text: 'Desativar Permanentemente', 
           style: 'destructive',
-          onPress: () => onToggleMonitor(area.id, false)
+          onPress: () => onToggleMonitor(area.id)
         }
       ]
     );

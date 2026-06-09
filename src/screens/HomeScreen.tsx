@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, FlatList, Text } from 'react-native';
+import React, { useState, useMemo, useCallback } from 'react';
+import { View, StyleSheet, TouchableOpacity, FlatList, Text } from 'react-native';
 import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -20,7 +20,7 @@ export const HomeScreen: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { isFavorite } = useFavorites();
-  const { areas, isLoading, toggleMonitor, renameArea, deleteArea } = useAreas();
+  const { areas, isLoading, disableMonitor, renameArea, deleteArea } = useAreas();
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,10 +83,10 @@ export const HomeScreen: React.FC = () => {
     return result;
   }, [areas, searchQuery, filterFav, filterStatus, sortBy, isFavorite]);
 
-  const openActionMenu = (area: Area) => {
+  const openActionMenu = useCallback((area: Area) => {
     setActionArea(area);
     setActionModalVisible(true);
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -100,8 +100,8 @@ export const HomeScreen: React.FC = () => {
     );
   }
 
-  return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+  const ListHeader = (
+    <>
       <HomeHeader
         userName={user?.nome?.split(' ')[0] || 'Usuário'}
         alertCount={todosAlertas.length}
@@ -110,49 +110,50 @@ export const HomeScreen: React.FC = () => {
         onNotificationPress={() => navigation.navigate('Notifications')}
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[1]}>
-        <ConsumptionWidget
-          totalAreaHa={totalAreaHa}
-          colors={colors as any}
-        />
+      <ConsumptionWidget
+        totalAreaHa={totalAreaHa}
+        colors={colors as any}
+      />
 
-        <HomeFilters
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          filterFav={filterFav}
-          setFilterFav={setFilterFav}
-          filterStatus={filterStatus}
-          setFilterStatus={setFilterStatus}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          colors={colors as any}
-        />
+      <HomeFilters
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filterFav={filterFav}
+        setFilterFav={setFilterFav}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        colors={colors as any}
+      />
 
-        {/* Áreas Monitoradas */}
-        <View style={styles.listSection}>
-          <Text style={[styles.listTitle, { color: colors.text }]}>Minhas Áreas Monitoradas ({filteredAreas.length})</Text>
-          {filteredAreas.length === 0 ? (
-            <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                Nenhuma área encontrada.
-              </Text>
-            </View>
-          ) : (
-            <FlatList
-              data={filteredAreas}
-              renderItem={({ item }) => (
-                <AreaCard 
-                  area={item} 
-                  onPress={() => navigation.navigate('Details', { areaId: item.id, areaNome: item.nome })}
-                  onOpenActions={openActionMenu}
-                />
-              )}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-            />
-          )}
-        </View>
-      </ScrollView>
+      {/* Áreas Monitoradas — Title */}
+      <Text style={[styles.listTitle, { color: colors.text }]}>Minhas Áreas Monitoradas ({filteredAreas.length})</Text>
+    </>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <FlatList
+        data={filteredAreas}
+        renderItem={({ item }) => (
+          <AreaCard 
+            area={item} 
+            onPress={() => navigation.navigate('Details', { areaId: item.id })}
+            onOpenActions={openActionMenu}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={ListHeader}
+        ListEmptyComponent={
+          <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              Nenhuma área encontrada.
+            </Text>
+          </View>
+        }
+        contentContainerStyle={styles.scrollContent}
+      />
 
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: colors.primary }]}
@@ -168,7 +169,7 @@ export const HomeScreen: React.FC = () => {
         renameModalVisible={renameModalVisible}
         setRenameModalVisible={setRenameModalVisible}
         onRename={(id, nome) => renameArea({ id, nome })}
-        onToggleMonitor={(id, ativo) => toggleMonitor({ id, ativo })}
+        onToggleMonitor={(id) => disableMonitor(id)}
         onDelete={(id) => deleteArea(id)}
       />
     </View>
@@ -178,7 +179,6 @@ export const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 80 },
-  listSection: { marginBottom: 40 },
   listTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
   emptyCard: { borderWidth: 1, borderRadius: 12, padding: 24, alignItems: 'center' },
   emptyText: { fontSize: 14, textAlign: 'center', fontWeight: '600' },
@@ -190,3 +190,4 @@ const styles = StyleSheet.create({
   },
   fabText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
+

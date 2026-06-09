@@ -22,9 +22,10 @@ export const useAreas = () => {
     onError: () => Alert.alert('Erro', 'Não foi possível excluir a área.')
   });
 
-  const toggleMonitorMutation = useMutation({
-    mutationFn: ({ id, ativo }: { id: string, ativo: boolean }) => 
-      api.patch(`/areas/${id}/monitoramento`, { monitoramento_ativo: ativo }),
+  // Monitoramento é unidirecional: só pode desativar (nunca reativar)
+  const disableMonitorMutation = useMutation({
+    mutationFn: (id: string) => 
+      api.patch(`/areas/${id}/monitoramento`, { monitoramento_ativo: false }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['areas'] });
     },
@@ -36,7 +37,7 @@ export const useAreas = () => {
           'Não foi possível comunicar com o satélite no momento. Tente novamente mais tarde.'
         );
       } else {
-        Alert.alert('Erro', 'Não foi possível alterar o monitoramento.');
+        Alert.alert('Erro', 'Não foi possível desativar o monitoramento.');
       }
     }
   });
@@ -54,7 +55,8 @@ export const useAreas = () => {
     areas: areasQuery.data || [],
     isLoading: areasQuery.isLoading,
     deleteArea: deleteAreaMutation.mutate,
-    toggleMonitor: toggleMonitorMutation.mutate,
+    disableMonitor: disableMonitorMutation.mutate,
     renameArea: renameAreaMutation.mutate,
   };
 };
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -38,7 +38,7 @@ export const HistoryScreen: React.FC = () => {
     }
   });
 
-  const excluirArea = (areaId: string, areaNome: string) => {
+  const excluirArea = useCallback((areaId: string, areaNome: string) => {
     Alert.alert(
       'Confirmar Exclusão',
       `Tem certeza de que deseja excluir a área "${areaNome}" do histórico?`,
@@ -51,7 +51,7 @@ export const HistoryScreen: React.FC = () => {
         },
       ]
     );
-  };
+  }, [excluirAreaMutation]);
 
   const filteredAreas = areas.filter((area) => {
     const matchesSearch = area.nome.toLowerCase().includes(search.toLowerCase());
@@ -99,7 +99,7 @@ export const HistoryScreen: React.FC = () => {
               isFavorite={isFavorite(item.id)}
               onToggleFavorite={() => toggleFavorite(item.id)}
               onDelete={() => excluirArea(item.id, item.nome)}
-              onDetails={() => navigation.navigate('Details', { areaId: item.id, areaNome: item.nome })}
+              onDetails={() => navigation.navigate('Details', { areaId: item.id })}
               colors={colors}
             />
           )}

@@ -61,7 +61,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} style={{ backgroundColor: colors.background }}>
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Text style={[styles.title, { color: colors.primary }]}>CarbonEye</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>

@@ -1,6 +1,7 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { logService } from './logService';
 
 export let API_URL = 'https://carboneye-api.onrender.com';
 
@@ -41,23 +42,19 @@ api.interceptors.response.use(
       console.warn('Erro de integração interceptado no backend');
     }
     
-    // Tenta enviar o log de erro para o backend silenciosamente
-    try {
-      const isPostLog = error.config && error.config.url === '/logs';
-      if (!isPostLog) {
-        axios.post(`${API_URL}/logs`, {
-          acao: 'Frontend Error',
-          nivel: 'ERROR',
-          detalhes: {
-            url: error.config?.url,
-            message: error.message,
-            status: error.response?.status,
-            data: error.response?.data,
-          }
-        }).catch(() => { /* Ignora erro ao tentar logar para evitar loop */ });
-      }
-    } catch (e) {
-      // Catch genérico do logger
+    // Enfileira o log de erro via logService (com buffer, batching e JWT)
+    const isPostLog = error.config && error.config.url === '/logs';
+    if (!isPostLog) {
+      logService.enqueue({
+        acao: 'Frontend Error',
+        nivel: 'ERROR',
+        detalhes: {
+          url: error.config?.url,
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data,
+        },
+      });
     }
 
     return Promise.reject(error);

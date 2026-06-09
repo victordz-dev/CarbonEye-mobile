@@ -65,14 +65,20 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
 
   const isSnapshot = !isActive;
   
-  const temp = isSnapshot ? (snapshotData?.temp ? Math.round(snapshotData.temp) : '--') : Math.round(weatherData?.main?.temp);
-  const humidity = isSnapshot ? (snapshotData?.humidity ? Math.round(snapshotData.humidity) : '--') : weatherData?.main?.humidity;
-  const desc = isSnapshot ? 'Condição Histórica' : weatherData?.weather[0]?.description;
-  const windSpeed = isSnapshot ? '--' : weatherData?.wind?.speed;
+  const temp = isSnapshot
+    ? (snapshotData?.temp != null ? Math.round(snapshotData.temp) : '--')
+    : (weatherData?.main?.temp != null ? Math.round(weatherData.main.temp) : '--');
+  const humidity = isSnapshot
+    ? (snapshotData?.humidity != null ? Math.round(snapshotData.humidity) : '--')
+    : (weatherData?.main?.humidity ?? '--');
+  const desc = isSnapshot
+    ? 'Condição Histórica'
+    : (weatherData?.weather?.[0]?.description || 'Sem dados');
+  const windSpeed = isSnapshot ? '--' : (weatherData?.wind?.speed ?? '--');
   
   // Choose icon based on weather main
   let WeatherIcon = Sun;
-  const condition = weatherData?.weather[0]?.main?.toLowerCase();
+  const condition = weatherData?.weather?.[0]?.main?.toLowerCase();
   if (condition?.includes('rain')) WeatherIcon = CloudRain;
   else if (condition?.includes('cloud')) WeatherIcon = Cloud;
 
@@ -92,7 +98,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
         </View>
         
         <View style={styles.detailsCol}>
-          <Text style={[styles.descText, { color: colors.textSecondary }]}>{desc.charAt(0).toUpperCase() + desc.slice(1)}</Text>
+          <Text style={[styles.descText, { color: colors.textSecondary }]}>{desc ? desc.charAt(0).toUpperCase() + desc.slice(1) : '--'}</Text>
           <View style={styles.infoRow}>
             <Droplets size={14} color={colors.textSecondary} />
             <Text style={[styles.infoText, { color: colors.textSecondary }]}>Umidade: {humidity}%</Text>

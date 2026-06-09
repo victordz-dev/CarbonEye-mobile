@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, FlatList } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BugPlay, AlertTriangle } from 'lucide-react-native';
 import api from '../services/api';
@@ -19,6 +19,8 @@ export const TestAreaScreen: React.FC = () => {
     },
   });
 
+  const monitoredAreas = areas.filter(a => a.monitoramentoAtivo);
+
   const mockMutation = useMutation({
     mutationFn: (areaId: string) => api.post(`/areas/${areaId}/alertas/mock`),
     onSuccess: () => {
@@ -31,13 +33,31 @@ export const TestAreaScreen: React.FC = () => {
     }
   });
 
-  const handleGenerateAlert = () => {
+  const handleGenerateAlert = useCallback(() => {
     if (!selectedAreaId) {
       Alert.alert('Atenção', 'Selecione uma área primeiro.');
       return;
     }
     mockMutation.mutate(selectedAreaId);
-  };
+  }, [selectedAreaId, mockMutation]);
+
+  const renderAreaItem = useCallback(({ item: area }: { item: Area }) => (
+    <TouchableOpacity
+      key={area.id}
+      style={[
+        styles.areaItem,
+        { backgroundColor: colors.surface, borderColor: selectedAreaId === area.id ? colors.primary : colors.border },
+      ]}
+      onPress={() => setSelectedAreaId(area.id)}
+    >
+      <Text style={[styles.areaName, { color: colors.text }]}>{area.nome}</Text>
+      {selectedAreaId === area.id && (
+        <View style={[styles.badge, { backgroundColor: colors.primary }]}>
+          <Text style={styles.badgeText}>Selecionada</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  ), [colors, selectedAreaId]);
 
   if (isLoading) {
     return (
@@ -47,8 +67,8 @@ export const TestAreaScreen: React.FC = () => {
     );
   }
 
-  return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+  const ListHeader = (
+    <>
       <View style={[styles.headerCard, { backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: colors.danger }]}>
         <BugPlay size={32} color={colors.danger} style={{ marginBottom: 12 }} />
         <Text style={[styles.title, { color: colors.danger }]}>Área de Testes (Debug)</Text>
@@ -58,40 +78,35 @@ export const TestAreaScreen: React.FC = () => {
       </View>
 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Áreas Disponíveis</Text>
-      
-      {areas.filter(a => a.monitoramentoAtivo).length === 0 ? (
-        <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>Nenhuma área sendo monitorada.</Text>
-      ) : (
-        areas.filter(a => a.monitoramentoAtivo).map((area) => (
-          <TouchableOpacity
-            key={area.id}
-            style={[
-              styles.areaItem,
-              { backgroundColor: colors.surface, borderColor: selectedAreaId === area.id ? colors.primary : colors.border },
-            ]}
-            onPress={() => setSelectedAreaId(area.id)}
-          >
-            <Text style={[styles.areaName, { color: colors.text }]}>{area.nome}</Text>
-            {selectedAreaId === area.id && (
-              <View style={[styles.badge, { backgroundColor: colors.primary }]}>
-                <Text style={styles.badgeText}>Selecionada</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        ))
-      )}
+    </>
+  );
 
-      <TouchableOpacity
-        style={[styles.btnAction, { backgroundColor: selectedAreaId ? colors.danger : colors.border, opacity: mockMutation.isPending ? 0.7 : 1 }]}
-        onPress={handleGenerateAlert}
-        disabled={!selectedAreaId || mockMutation.isPending}
-      >
-        <AlertTriangle size={20} color="#fff" style={{ marginRight: 8 }} />
-        <Text style={styles.btnActionText}>
-          {mockMutation.isPending ? 'Gerando...' : 'Disparar Alerta Falso'}
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+  const ListFooter = (
+    <TouchableOpacity
+      style={[styles.btnAction, { backgroundColor: selectedAreaId ? colors.danger : colors.border, opacity: mockMutation.isPending ? 0.7 : 1 }]}
+      onPress={handleGenerateAlert}
+      disabled={!selectedAreaId || mockMutation.isPending}
+    >
+      <AlertTriangle size={20} color="#fff" style={{ marginRight: 8 }} />
+      <Text style={styles.btnActionText}>
+        {mockMutation.isPending ? 'Gerando...' : 'Disparar Alerta Falso'}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <FlatList
+      style={[styles.container, { backgroundColor: colors.background }]}
+      data={monitoredAreas}
+      renderItem={renderAreaItem}
+      keyExtractor={(item) => item.id}
+      ListHeaderComponent={ListHeader}
+      ListFooterComponent={ListFooter}
+      ListEmptyComponent={
+        <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 20 }}>Nenhuma área sendo monitorada.</Text>
+      }
+      contentContainerStyle={{ paddingBottom: 40 }}
+    />
   );
 };
 
@@ -165,3 +180,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
