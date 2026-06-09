@@ -241,7 +241,6 @@ npm test
 | Documento | Descrição |
 |---|---|
 | [Arquitetura Frontend](./docs/Arquitetura%20Frontend.md) | Especificação técnica completa: estrutura de pastas, gerenciamento de estado, camada de serviços, navegação e padrões |
-| [Enunciado](./docs/enunciado.md) | Requisitos do projeto e critérios de avaliação |
 
 ---
 
